@@ -43,7 +43,7 @@ class AppointmentBookingController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    Stripe.publishableKey = "pk_test_51RGfa1FSkLKjerwTafuoYIUpExXF0WRferAVCYTPYBxoccHsCBb89Y5k31zQDZStubJVDGJJzNX3Ag8peCGfWCeM00P2NDMygy";
+    Stripe.publishableKey = "YOUR_STRIPE_SECRET_KEY";
     _initializeData();
   }
 
@@ -293,3 +293,5 @@ class AppointmentBookingController extends GetxController {
     }
   }
 }
+
+/* "pk_test_51RGfa1FSkLKjerwTafuoYIUpExXF0WRferAVCYTPYBxoccHsCBb89Y5k31zQDZStubJVDGJJzNX3Ag8peCGfWCeM00P2NDMygy" */

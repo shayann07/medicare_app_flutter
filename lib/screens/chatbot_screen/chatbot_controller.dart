@@ -33,7 +33,7 @@ class ChatbotController extends GetxController {
   }
 
   Future<String> _getAIResponse(String prompt) async {
-    final apiKey = "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";
+    final apiKey = "YOUR_OPENAI_API_KEY";
     const maxRetries = 2;
     int retryCount = 0;
 
@@ -108,3 +108,5 @@ class ChatbotController extends GetxController {
     update();
   }
 }
+
+/*"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";*/
