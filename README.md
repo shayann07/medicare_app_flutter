@@ -1,81 +1,67 @@
-# Medicare App Flutter
+# medicare_app_flutter
 
-A full-featured hospital and healthcare management system built with **Flutter**. It includes secure registration and login for patients, doctors and hospitals, online appointment booking with integrated payments, doctor and hospital management, an online pharmacy, disease information, and a built‑in chatbot for patient assistance.
+This repository is a **partial snapshot** of a Flutter hospital/healthcare app. Only two GetX controllers are checked in — an appointment-booking flow that talks to Firebase Realtime Database and Stripe, and an OpenAI-backed chatbot. There is no `pubspec.yaml`, no `lib/main.dart`, no UI screens, and no working Android/iOS scaffolding, so the project **cannot be built or run as-is**.
 
-## ✨ Features
+## Status
 
-- **Secure authentication** – Patients, doctors and hospitals can create accounts and sign in securely via Firebase Authentication.  
-- **Appointment booking & payments** – Users can schedule appointments with doctors and complete payments seamlessly via the integrated Stripe gateway.  
-- **Doctor & hospital management** – Administrative interfaces allow hospital staff to add or manage doctor profiles, schedules and department data.  
-- **Online pharmacy** – Browse medicines and place orders through the in‑app pharmacy module with secure checkout.  
-- **Disease information** – Search and access reliable information about common diseases and medical conditions.  
-- **Chatbot assistant** – Built‑in AI chatbot assists patients with common queries and navigation within the app.  
-- **Cross‑platform** – Built with Flutter for Android and iOS.
+Stub / incomplete. The previous README described a full healthcare platform with authentication, appointment booking with payments, doctor/hospital management, an online pharmacy, disease information, and a chatbot. Almost none of those features have any code in this repository. Only two controllers exist; the rest of the project (entry point, screens, dependencies, platform configs, Firebase configs) is missing.
 
-## 🔧 Tech Stack
+## ⚠ Security Notice — Read First
 
-- **Frontend:** Flutter • Dart  
-- **Backend:** Firebase Authentication • Cloud Firestore  
-- **Payments:** Stripe API  
-- **State Management:** Provider (or Riverpod, update as necessary)  
-- **Other Services:** Push notifications, etc.
+This repository contains **committed live API secrets**. Both must be treated as compromised and rotated:
 
-## 🚀 Getting Started
+1. `lib/screens/appointment_booking/appointment_booking_controller.dart` (~line 223) hardcodes a real Stripe **secret** key (`sk_test_…`) used to call `https://api.stripe.com/v1/payment_intents` directly from the client. Stripe secret keys must never live in client code; payment intent creation must run on a server.
+2. `lib/screens/chatbot_screen/chatbot_controller.dart` (bottom comment) contains a real OpenAI key (`sk-proj-…`).
 
-To get up and running with this project:
+Do **not** clone, run, or fork this repo until those keys are revoked at Stripe and OpenAI and removed from git history.
 
-1. Install the [Flutter SDK](https://docs.flutter.dev/get-started/install) and set up your environment.  
-2. Clone this repository:
+## What Is Actually In The Repo
 
-```bash
-git clone https://github.com/shayann07/medicare_app_flutter.git
-cd medicare_app_flutter
-```
+- `lib/screens/appointment_booking/appointment_booking_controller.dart` — a `GetxController` that:
+  - Reads doctor metadata from Firebase Realtime Database at `doctors/{specialization}/{doctorKey}/Personal Detail` and patient metadata at `patients/{patientKey}/Personal Detail` via `firebase_database`.
+  - Generates a 7-day window of available dates and a fixed list of 20-minute time slots from 09:00 AM to 03:20 PM.
+  - Queries `doctors/{spec}/{doctor}/Appointment` for the selected date to mark booked slots.
+  - Creates a Stripe Payment Intent **directly from the client**, presents the Stripe Payment Sheet via `flutter_stripe`, and on success writes appointment records under both `doctors/.../Appointment/{key}` and `patients/{patient}/Booked Appointment/{key}` with `paymentStatus: 'completed'`.
+- `lib/screens/chatbot_screen/chatbot_controller.dart` — a `GetxController` that:
+  - Sends user prompts to `https://api.openai.com/v1/chat/completions` (`gpt-4o-mini`, temperature 0.3, `max_tokens` 50) with a system prompt restricting it to general medical information and avoiding diagnosis.
+  - Retries on HTTP 429 up to twice and surfaces a generic error message on failure.
 
-3. Install dependencies:
+That is the complete checked-in Dart source of the project.
 
-```bash
-flutter pub get
-```
+## What Is Missing
 
-4. Run the app:
+- No `pubspec.yaml`, so `flutter pub get` cannot resolve dependencies.
+- No `lib/main.dart`, no `MaterialApp` / `GetMaterialApp`, no routing, no theme.
+- No screen widgets, no widgets at all — only controllers.
+- No `firebase_options.dart`, `google-services.json`, or `GoogleService-Info.plist` for connecting to a Firebase project.
+- No Android app code: only `android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java` is present. There is no `app/build.gradle`, `AndroidManifest.xml`, or `MainActivity`.
+- No iOS app code: only `ios/Runner/GeneratedPluginRegistrant.{h,m}` and Flutter ephemeral files. No `Info.plist`, no `AppDelegate.swift`.
+- No `test/` directory and no tests of any kind.
+- No `LICENSE` file despite the previous README claiming MIT.
 
-```bash
-flutter run
-```
+## Tech Stack (from the two controllers and cached plugin manifest)
 
-## 📄 License
+The checked-in source imports from `get`, `firebase_database`, `flutter_stripe`, `http`, `intl`, and `flutter/material.dart`. The cached `.flutter-plugins-dependencies` manifest (last regenerated by Flutter 3.32.8 on 2025-07-29) lists these plugins as being part of the original project:
 
-This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details.
-<!-- commit 1 -->
-<!-- commit 2 -->
-<!-- commit 3 -->
-<!-- commit 4 -->
-<!-- commit 5 -->
-<!-- commit 6 -->
-<!-- commit 7 -->
-<!-- commit 8 -->
-<!-- commit 9 -->
-<!-- commit 10 -->
-<!-- commit 11 -->
-<!-- commit 12 -->
-<!-- commit 13 -->
-<!-- commit 14 -->
-<!-- commit 15 -->
-<!-- commit 16 -->
-<!-- commit 17 -->
+- **Firebase:** `firebase_core`, `firebase_database` (Realtime Database — **not** Cloud Firestore as the previous README claimed).
+- **Payments:** `flutter_stripe` (`stripe_android` 8.0.0+1, `stripe_ios` 8.0.0).
+- **State management:** `get` (GetX) — used in both controllers.
+- **Other:** `image_picker`, `permission_handler`, `path_provider`, `url_launcher`, `flutter_inappwebview`, `sqflite`, `device_info_plus`.
 
-<!-- gitpulse:contribution index="18" timestamp="2026-05-03" -->
-<!-- gitpulse:contribution index="19" timestamp="2026-05-03" -->
-<!-- gitpulse:contribution index="20" timestamp="2026-05-03" -->
-<!-- gitpulse:contribution index="21" timestamp="2026-05-03" -->
-<!-- gitpulse:contribution index="22" timestamp="2026-05-03" -->
-<!-- gitpulse:contribution index="23" timestamp="2026-05-03" -->
-<!-- gitpulse:contribution index="24" timestamp="2026-05-03" -->
-<!-- gitpulse:contribution index="25" timestamp="2026-05-03" -->
-<!-- gitpulse:contribution index="26" timestamp="2026-05-03" -->
-<!-- gitpulse:contribution index="27" timestamp="2026-05-03" -->
-<!-- gitpulse:contribution index="28" timestamp="2026-05-04" -->
-<!-- gitpulse:contribution index="29" timestamp="2026-05-04" -->
-<!-- gitpulse:contribution index="30" timestamp="2026-05-04" -->
-<!-- gitpulse:contribution index="31" timestamp="2026-05-04" -->
+These plugins are **not** declared anywhere in the repo (no `pubspec.yaml`); they only appear in the generated cache file from a prior local build.
+
+## Recovering The Project
+
+If you are trying to bring this back to a buildable state, you will need at minimum:
+
+1. A `pubspec.yaml` listing the plugins above plus the matching transitive deps and SDK constraints used in 2025.
+2. A `lib/main.dart` that calls `Firebase.initializeApp(...)` (with a generated `firebase_options.dart`) and a `GetMaterialApp` with routes for the two controllers.
+3. The Android `app/build.gradle`, `AndroidManifest.xml`, and `MainActivity` (Flutter template).
+4. The iOS `Runner/Info.plist`, `AppDelegate.swift`, and Stripe-required Info.plist keys.
+5. Firebase config files (`google-services.json`, `GoogleService-Info.plist`) for your own Firebase project.
+6. UI screens that drive `AppointmentBookingController` and `ChatbotController`.
+7. A backend endpoint that creates Stripe Payment Intents — the current client-side approach is insecure and must be replaced.
+
+## License
+
+There is no `LICENSE` file in this repository. Treat the source as **all rights reserved by the author** until a license is added.
