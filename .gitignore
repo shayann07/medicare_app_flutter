@@ -1,0 +1,15 @@
+
+# Auto-added security rules
+local.properties
+google-services.json
+GoogleService-Info.plist
+*.jks
+*.keystore
+*.p12
+*.pfx
+.env
+.env.*
+service_account*.json
+serviceAccount*.json
+secrets.properties
+keystore.properties
